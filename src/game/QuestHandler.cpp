@@ -338,34 +338,32 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
 void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
 {
-    uint32 quest;
-    recv_data >> quest;
+    uint32 questId;
+    recv_data >> questId;
 
-    DEBUG_LOG("WORLD: Received opcode CMSG_QUEST_CONFIRM_ACCEPT quest = %u", quest);
+    DEBUG_LOG("WORLD: Received opcode CMSG_QUEST_CONFIRM_ACCEPT quest = %u", questId);
 
-    if (const Quest* pQuest = sObjectMgr.GetQuestTemplate(quest))
+    if (Quest const* quest = sObjectMgr.GetQuestTemplate(questId))
     {
-        if (!pQuest->HasQuestFlag(QUEST_FLAGS_PARTY_ACCEPT))
+        if (!quest->HasQuestFlag(QUEST_FLAGS_PARTY_ACCEPT))
             return;
 
-        Player* pOriginalPlayer = ObjectAccessor::FindPlayer(_player->GetDividerGuid());
 
-        if (!pOriginalPlayer)
+        Player* originalPlayer = ObjectAccessor::FindPlayer(_player->GetDividerGuid());
+        if (!originalPlayer)
             return;
 
-        if (pQuest->IsAllowedInRaid())
-        {
-            if (!_player->IsInSameRaidWith(pOriginalPlayer))
-                return;
-        }
-        else
-        {
-            if (!_player->IsInSameGroupWith(pOriginalPlayer))
-                return;
-        }
+        if (!_player->IsInSameRaidWith(originalPlayer))
+            return;
 
-        if (_player->CanAddQuest(pQuest, true))
-            _player->AddQuest(pQuest, NULL);                // NULL, this prevent DB script from duplicate running
+        if (!originalPlayer->CanShareQuest(questId))
+            return;
+
+        if (!_player->CanTakeQuest(quest, true))
+            return;
+
+        if (_player->CanAddQuest(quest, true))
+            _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running
 
         _player->ClearDividerGuid();
     }
