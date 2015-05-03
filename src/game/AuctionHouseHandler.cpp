@@ -302,6 +302,13 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recv_data)
         return;
     }
 
+    // ANTI WPE
+    if (it->IsBag() && !((Bag*)it)->IsEmpty())
+    {
+        SendAuctionCommandResult(0, AUCTION_STARTED, AUCTION_ERR_DATABASE);
+        return;
+    }
+
     // check money for deposit
     uint32 deposit = AuctionHouseMgr::GetAuctionDeposit(auctionHouseEntry, etime, it);
     if (pl->GetMoney() < deposit)

@@ -198,6 +198,13 @@ void WorldSession::HandleSendMail(WorldPacket& recv_data)
             pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
         }
+
+        // ANTI WPE
+        if (item->IsBag() && !((Bag*)item)->IsEmpty())
+        {
+            pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS);
+            return;
+        }
     }
 
     pl->SendMailResult(0, MAIL_SEND, MAIL_OK);
