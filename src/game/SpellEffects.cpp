@@ -402,6 +402,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
 
                 if (m_caster->HasAura(20055))
                  damage *= 1.15f;
+
+                if (!unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId() == TYPEID_PLAYER)
+                 damage *= 0.5f;
             }
 
         if (damage >= 0)
@@ -1215,7 +1218,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (!spell_proto)
                         return;
 
-                    if (!unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId() == TYPEID_PLAYER)
+                    /*if (!unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         // decreased damage (/2) for non-stunned target.
                         SpellModifier* mod = new SpellModifier(SPELLMOD_DAMAGE, SPELLMOD_PCT, -50, m_spellInfo->Id, UI64LIT(0x0000020000000000));
@@ -1225,9 +1228,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         // mod deleted
                         ((Player*)m_caster)->AddSpellMod(mod, false);
                     }
-                    else
-                        m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
-
+                    else*/
+                    m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
                     return;
                 }
             }
